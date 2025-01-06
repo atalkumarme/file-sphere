@@ -1,0 +1,39 @@
+{
+  "name": "file-sphere",
+  "version": "1.0.0",
+  "description": "A file storage and sharing system that allows users to upload, organize, and share files.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atalkumarme/file-sphere.git"
+  },
+  "keywords": [
+    "file",
+    "storage",
+    "cloud",
+    "storage"
+  ],
+  "author": "atalkumarme",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/atalkumarme/file-sphere/issues"
+  },
+  "homepage": "https://github.com/atalkumarme/file-sphere#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15",
+    "jest": "^27.4.7"
+  }
+}
