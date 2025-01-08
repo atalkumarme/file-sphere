@@ -69,3 +69,5 @@ const folderController = {
     }
   }
 };
+
+module.exports = folderController;

@@ -1,0 +1,242 @@
+{
+  "info": {
+    "_postman_id": "53f258c9-7115-4296-86f0-e343bf633c2d",
+    "name": "FileSphere API",
+    "description": "Postman collection for testing FileSphere API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Mohan Kr\",\n  \"email\": \"mohan@gmail.com\",\n  \"password\": \"xxxxxx\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "if (response.token) {",
+                  "  pm.environment.set(\"token\", response.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"mohan@gmail.com\",\n  \"password\": \"xxxxxx\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "File Operations",
+      "item": [
+        {
+          "name": "Upload File",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Use the JWT token from login"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/files/upload",
+              "host": ["{{base_url}}"],
+              "path": ["api", "files", "upload"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Download File",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Use the JWT token from login"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/files/download/{{file_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "files", "download", "{{file_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete File",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Use the JWT token from login"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/files/{{file_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "files", "{{file_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Files",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Use the JWT token from login"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/files",
+              "host": ["{{base_url}}"],
+              "path": ["api", "files"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Folder Operations",
+      "item": [
+        {
+          "name": "Create Folder",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Use the JWT token from login"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Folder\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/folders",
+              "host": ["{{base_url}}"],
+              "path": ["api", "folders"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Folders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Use the JWT token from login"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/folders",
+              "host": ["{{base_url}}"],
+              "path": ["api", "folders"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Folder",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Use the JWT token from login"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/folders/{{folder_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "folders", "{{folder_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ]
+}
