@@ -27,6 +27,10 @@ const fileSchema = new mongoose.Schema({
     ref: 'Folder',
     default: null
   },
+  path: {
+    type: String,
+    required: true
+  },
   gridFSId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true
@@ -34,5 +38,8 @@ const fileSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
+fileSchema.index({ owner: 1, parent: 1 });
+fileSchema.index({ path: 1 });
 
 module.exports = mongoose.model('File', fileSchema);

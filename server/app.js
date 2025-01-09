@@ -12,6 +12,7 @@ const { storage, gfs } = require('./src/config/gridfs');
 const authRoutes = require('./src/routes/auth.routes');
 const fileRoutes = require('./src/routes/file.routes');
 const folderRoutes = require('./src/routes/folder.routes');
+const navigationRoutes = require('./src/routes/navigation.routes');
 const errorHandler = require('./src/middleware/errorHandler');
 
 // Initialize app
@@ -34,6 +35,7 @@ app.locals.gfs = gfs;
 app.use('/api/auth', authRoutes);
 app.use('/api/files', fileRoutes);
 app.use('/api/folders', folderRoutes);
+app.use('/api/nav/', navigationRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
