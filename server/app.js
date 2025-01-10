@@ -1,3 +1,4 @@
+// src/app.js
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
@@ -7,8 +8,9 @@ const helmet = require('helmet');
 // Load environment variables
 dotenv.config();
 
-const connectDB = require('./src/config/db');
-const { storage, gfs } = require('./src/config/gridfs');
+const { connectDB } = require('./src/config/connection');
+const { storage } = require('./src/config/gridfs');
+const { getGfs } = require('./src/config/gridfsUtils');
 const authRoutes = require('./src/routes/auth.routes');
 const fileRoutes = require('./src/routes/file.routes');
 const folderRoutes = require('./src/routes/folder.routes');
@@ -30,7 +32,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Expose GridFS globally
-app.locals.gfs = gfs;
+app.locals.gfs = getGfs();
 
 // API routes
 app.use('/api/auth', authRoutes);
@@ -42,6 +44,11 @@ app.use('/api/share', shareRoutes);
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to FileSphere API' });
+});
+
+// Handle unmatched routes
+app.use((req, res, next) => {
+  res.status(404).json({ error: 'Endpoint not found' });
 });
 
 // Error handling middleware
