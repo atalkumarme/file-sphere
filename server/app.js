@@ -13,6 +13,7 @@ const authRoutes = require('./src/routes/auth.routes');
 const fileRoutes = require('./src/routes/file.routes');
 const folderRoutes = require('./src/routes/folder.routes');
 const navigationRoutes = require('./src/routes/navigation.routes');
+const shareRoutes = require('./src/routes/share.routes');
 const errorHandler = require('./src/middleware/errorHandler');
 
 // Initialize app
@@ -36,6 +37,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/files', fileRoutes);
 app.use('/api/folders', folderRoutes);
 app.use('/api/nav/', navigationRoutes);
+app.use('/api/share', shareRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
