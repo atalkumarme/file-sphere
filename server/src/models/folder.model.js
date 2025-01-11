@@ -73,7 +73,7 @@ folderSchema.methods.updatePath = async function() {
 
   this.pathArray = pathParts;
   this.level = level;
-  this.path = '/' + pathParts.map(p => p.name).join('/');
+  this.path = pathParts.length > 0 ? '/' + pathParts.map(p => p.name).join('/') : '';
   if (this.name) {
     this.path += '/' + this.name;
   }

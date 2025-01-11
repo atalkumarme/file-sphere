@@ -2,9 +2,24 @@
 const File = require('../models/file.model');
 const User = require('../models/user.model');
 const { getGfs } = require('../config/gridfsUtils');
+const Folder = require('../models/folder.model'); // Import Folder model
 
 const fileService = {
+    async getFolderPath(folderId) {
+        if (!folderId) return '';
+        const folder = await Folder.findById(folderId); // Use Folder model
+        if (!folder) throw new Error('Folder not found');
+        return folder.path || '';
+    },
+
     async saveFile(file, userId, folderId) {
+        let filePath = '/' + file.filename;
+        
+        if (folderId) {
+            const folderPath = await this.getFolderPath(folderId);
+            filePath = `${folderPath}/${file.filename}`;
+        }
+
         const fileDoc = new File({
             filename: file.filename,
             originalName: file.metadata.originalName,
@@ -13,6 +28,7 @@ const fileService = {
             size: file.size,
             owner: userId,
             parent: folderId || null,
+            path: filePath,
             gridFSId: file.id,
         });
 

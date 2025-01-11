@@ -5,21 +5,22 @@ const mongoose = require('mongoose');
 
 const folderService = {
     async createFolder({ name, parent }, userId) {
-        const session = await mongoose.startSession();
-        session.startTransaction();
+        // const session = await mongoose.startSession();
+        // session.startTransaction();
 
         try {
             const folder = new Folder({ name, owner: userId, parent: parent || null });
             await folder.updatePath();
-            await folder.save({ session });
-            await session.commitTransaction();
+            await folder.save();
+            // await session.commitTransaction();
             return folder;
         } catch (error) {
-            await session.abortTransaction();
+            // await session.abortTransaction();
             throw error;
-        } finally {
-            session.endSession();
         }
+        //  finally {
+        //     session.endSession();
+        // }
     },
 
     async renameFolder(folderId, newName) {

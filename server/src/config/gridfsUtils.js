@@ -5,6 +5,7 @@ let gfs = null;
 
 // Initialize GridFS
 const initializeGfs = () => {
+    console.log('Initializing GridFS');
     if (!mongoose.connection || !mongoose.connection.db) {
         throw new Error('MongoDB connection not established');
     }

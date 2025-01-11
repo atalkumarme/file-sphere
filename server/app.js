@@ -31,9 +31,6 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Expose GridFS globally
-app.locals.gfs = getGfs();
-
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/files', fileRoutes);
