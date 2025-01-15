@@ -23,46 +23,50 @@ const folderService = {
         // }
     },
 
+    // Replace renameFolder method
+    // Replace renameFolder method
     async renameFolder(folderId, newName) {
-        const session = await mongoose.startSession();
-        session.startTransaction();
-
         try {
             const folder = await Folder.findById(folderId);
             if (!folder) throw new Error('Folder not found');
 
+            const oldPath = folder.path;
             folder.name = newName;
             await folder.updatePath();
-            await folder.save({ session });
+            await folder.save();
 
-            const folderRegex = new RegExp(`^${folder.path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`);
-            await Promise.all([
-                Folder.updateMany(
-                    { path: folderRegex },
-                    { $set: { 'pathArray.$[].name': newName } },
-                    { session }
-                ),
-                File.updateMany(
-                    { path: folderRegex },
-                    { $set: { path: { $concat: [folder.path, { $substr: ['$path', folder.path.length, -1] }] } } },
-                    { session }
-                ),
+            // Find all affected folders and files
+            const folderRegex = new RegExp(`^${oldPath}/`);
+            const [subFolders, files] = await Promise.all([
+                Folder.find({ path: folderRegex }),
+                File.find({ path: folderRegex })
             ]);
 
-            await session.commitTransaction();
+            // Update paths
+            await Promise.all([
+                ...subFolders.map(subFolder => {
+                    const newPath = folder.path + subFolder.path.slice(oldPath.length);
+                    return Folder.updateOne(
+                        { _id: subFolder._id },
+                        { path: newPath }
+                    );
+                }),
+                ...files.map(file => {
+                    const newPath = folder.path + file.path.slice(oldPath.length);
+                    return File.updateOne(
+                        { _id: file._id },
+                        { path: newPath }
+                    );
+                })
+            ]);
+
             return folder;
         } catch (error) {
-            await session.abortTransaction();
             throw error;
-        } finally {
-            session.endSession();
         }
     },
-
+    // Replace moveFolder method
     async moveFolder(folderId, destinationId) {
-        const session = await mongoose.startSession();
-        session.startTransaction();
-
         try {
             const folder = await Folder.findById(folderId);
             if (!folder) throw new Error('Folder not found');
@@ -71,68 +75,74 @@ const folderService = {
                 throw new Error('Cannot move folder to its own subdirectory');
             }
 
+            const oldPath = folder.path;
             folder.parent = destinationId || null;
             await folder.updatePath();
-            await folder.save({ session });
+            await folder.save();
 
-            const oldPath = folder.path;
+            // Find all affected folders and files
             const folderRegex = new RegExp(`^${oldPath}/`);
-            await Promise.all([
-                Folder.updateMany(
-                    { path: folderRegex },
-                    { $set: { path: { $concat: [folder.path, { $substr: ['$path', oldPath.length, -1] }] } } },
-                    { session }
-                ),
-                File.updateMany(
-                    { path: folderRegex },
-                    { $set: { path: { $concat: [folder.path, { $substr: ['$path', oldPath.length, -1] }] } } },
-                    { session }
-                ),
+            const [subFolders, files] = await Promise.all([
+                Folder.find({ path: folderRegex }),
+                File.find({ path: folderRegex })
             ]);
 
-            await session.commitTransaction();
+            // Update paths
+            await Promise.all([
+                ...subFolders.map(subFolder => {
+                    const newPath = folder.path + subFolder.path.slice(oldPath.length);
+                    return Folder.updateOne(
+                        { _id: subFolder._id },
+                        { path: newPath }
+                    );
+                }),
+                ...files.map(file => {
+                    const newPath = folder.path + file.path.slice(oldPath.length);
+                    return File.updateOne(
+                        { _id: file._id },
+                        { path: newPath }
+                    );
+                })
+            ]);
+
             return folder;
         } catch (error) {
-            await session.abortTransaction();
             throw error;
-        } finally {
-            session.endSession();
         }
     },
-
+    // Replace deleteFolder method
     async deleteFolder(folderId) {
-        const session = await mongoose.startSession();
-        session.startTransaction();
-
         try {
             const folder = await Folder.findById(folderId);
             if (!folder) throw new Error('Folder not found');
 
             const folderPath = new RegExp(`^${folder.path}/`);
             await Promise.all([
-                Folder.deleteMany({ path: folderPath }, { session }),
-                File.deleteMany({ path: folderPath }, { session }),
+                Folder.deleteMany({ path: folderPath }),
+                File.deleteMany({ path: folderPath }),
+                Folder.findByIdAndDelete(folderId)
             ]);
-
-            await Folder.findByIdAndDelete(folderId, { session });
-            await session.commitTransaction();
         } catch (error) {
-            await session.abortTransaction();
             throw error;
-        } finally {
-            session.endSession();
         }
     },
-
     async isSubdirectory(sourceId, targetId) {
-        if (!targetId) return false;
-        if (sourceId.equals(targetId)) return true;
-
-        const target = await Folder.findById(targetId);
-        if (!target) return false;
-
-        return this.isSubdirectory(sourceId, target.parent);
-    },
+        if (!targetId) return false; // If no targetId is provided, it's not a subdirectory.
+        if (sourceId.equals(targetId)) return false; // A folder cannot be a subdirectory of itself.
+    
+        let currentFolder = await Folder.findById(targetId); // Start with the target folder.
+    
+        while (currentFolder && currentFolder.parent) {
+            if (currentFolder.parent.equals(sourceId)) {
+                return true; // Found the source folder in the ancestry chain.
+            }
+            currentFolder = await Folder.findById(currentFolder.parent); // Move up the chain.
+        }
+    
+        return false; // Reached the root without finding the source folder.
+    }
+    
+    
 };
 
 module.exports = folderService;

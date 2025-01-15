@@ -24,6 +24,7 @@ describe('File Service Tests', () => {
   });
 
   afterAll(async () => {
+    await mongoose.connection.db.dropDatabase();
     await mongoose.disconnect();
   });
 
